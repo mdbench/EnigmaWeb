@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engima Web</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button.danger {
+            background-color: var(--danger);
+        }
+
+        button.success {
+            background-color: var(--success);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .preview-container {
+            max-width: 100%;
+            margin-top: 20px;
+            overflow: auto;
+        }
+
+        .preview-content {
+            max-width: 100%;
+            max-height: 70vh;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .status.success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status.error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Secure File Vault</h1>
+        <div>
+            <button id="exportBtn">Export Database</button>
+            <button id="importBtn">Import Database</button>
+            <input type="file" id="importFile" accept=".idb" class="hidden">
+        </div>
+    </header>
+
+    <div class="card">
+        <h2>Add New File</h2>
+        <div class="controls">
+            <input type="file" id="fileInput">
+        </div>
+        <div>
+            <input type="text" id="fileName" placeholder="Custom file name">
+            <textarea id="fileDescription" placeholder="File description"></textarea>
+            <div>
+                <input type="checkbox" id="encryptCheckbox">
+                <label for="encryptCheckbox">Encrypt with password</label>
+                <input type="password" id="encryptPassword" placeholder="Encryption password" class="hidden">
+            </div>
+            <button id="addFileBtn">Add File</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search by name or description...">
+        </div>
+        <div id="fileTableContainer">
+            <table id="fileTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Size</th>
+                        <th>Encrypted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="fileTableBody">
+                    <!-- Files will be added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="previewModal" class="card hidden">
+        <h2>File Preview</h2>
+        <div id="previewContainer" class="preview-container"></div>
+        <button id="closePreviewBtn">Close Preview</button>
+    </div>
+
+    <div id="statusMessage" class="status"></div>
+
+    <script>
+        // Database setup
+        const DB_NAME = 'SecureFileVaultDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'files';
+        let db;
+
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const fileDescription = document.getElementById('fileDescription');
+        const encryptCheckbox = document.getElementById('encryptCheckbox');
+        const encryptPassword = document.getElementById('encryptPassword');
+        const addFileBtn = document.getElementById('addFileBtn');
+        const fileTableBody = document.getElementById('fileTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const importFile = document.getElementById('importFile');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewModal = document.getElementById('previewContainer').parentElement;
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Initialize database
+        function initDB() {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('name', 'name', { unique: false });
+                    store.createIndex('type', 'type', { unique: false });
+                }
+            };
+
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                loadFiles();
+            };
+
+            request.onerror = function(event) {
+                showStatus('Error opening database: ' + event.target.error, 'error');
+            };
+        }
+
+        // Encrypt file using Web Crypto API
+        async function encryptFile(file, password) {
+            const data = await file.arrayBuffer();
+            const encoder = new TextEncoder();
+            const passwordKey = await crypto.subtle.importKey(
+                'raw',
+                encoder.encode(password),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveKey']
+            );
+
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const key = await crypto.subtle.deriveKey(
+                {
+                    name: 'PBKDF2',
+                    salt: salt,
+                    iterations: 100000,
+                    hash: 'SHA-256'
+                },
+                passwordKey,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encryptedData = await crypto.subtle.encrypt(
+                {
+                    name: 'AES-GCM',
+                    iv: iv
+                },
+                key,
+                data
+            );
+
+            return {
+                encryptedData: new Uint8Array(encryptedData),
+                salt: salt,
+                iv: iv
+            };
+        }
+
+        // Decrypt file using Web Crypto API
+        async function decryptFile(encryptedFile, password) {
+            const encoder = new TextEncoder();
+            const passwordKey = await crypto.subtle.importKey(
+                'raw',
+                encoder.encode(password),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveKey']
+            );
+
+            const key = await crypto.subtle.deriveKey(
+                {
+                    name: 'PBKDF2',
+                    salt: encryptedFile.salt,
+                    iterations: 100000,
+                    hash: 'SHA-256'
+                },
+                passwordKey,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['decrypt']
+            );
+
+            try {
+                const decryptedData = await crypto.subtle.decrypt(
+                    {
+                        name: 'AES-GCM',
+                        iv: encryptedFile.iv
+                    },
+                    key,
+                    encryptedFile.data
+                );
+
+                return new Blob([decryptedData], { type: encryptedFile.type });
+            } catch (e) {
+                throw new Error('Decryption failed. Wrong password?');
+            }
+        }
+
+        // Add file to database
+        async function addFile() {
+            if (!fileInput.files.length) {
+                showStatus('Please select a file', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const name = fileName.value || file.name;
+            const description = fileDescription.value || 'No description';
+            const encrypt = encryptCheckbox.checked;
+            const password = encrypt ? encryptPassword.value : null;
+
+            if (encrypt && !password) {
+                showStatus('Password required for encryption', 'error');
+                return;
+            }
+
+            try {
+                let fileData;
+                let encrypted = false;
+
+                if (encrypt) {
+                    const encryptedResult = await encryptFile(file, password);
+                    fileData = {
+                        data: encryptedResult.encryptedData,
+                        salt: encryptedResult.salt,
+                        iv: encryptedResult.iv,
+                        type: file.type,
+                        encrypted: true
+                    };
+                    encrypted = true;
+                } else {
+                    fileData = {
+                        data: await file.arrayBuffer(),
+                        type: file.type,
+                        encrypted: false
+                    };
+                }
+
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+
+                store.add({
+                    name: name,
+                    description: description,
+                    type: file.type,
+                    size: file.size,
+                    encrypted: encrypted,
+                    fileData: fileData,
+                    createdAt: new Date()
+                });
+
+                transaction.oncomplete = function() {
+                    showStatus('File added successfully', 'success');
+                    resetForm();
+                    loadFiles();
+                };
+
+                transaction.onerror = function(event) {
+                    showStatus('Error adding file: ' + event.target.error, 'error');
+                };
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Load files from database and display in table
+        function loadFiles(searchTerm = '') {
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
+
+            request.onsuccess = function() {
+                const files = request.result;
+                const tableBody = document.getElementById('fileTableBody');
+                tableBody.innerHTML = '';
+
+                files.forEach(file => {
+                    // Apply search filter
+                    if (searchTerm && 
+                        !file.name.toLowerCase().includes(searchTerm) && 
+                        !file.description.toLowerCase().includes(searchTerm)) {
+                        return;
+                    }
+
+                    const row = document.createElement('tr');
+                    
+                    // Format file size
+                    const sizeKB = Math.round(file.size / 1024);
+                    
+                    row.innerHTML = `
+                        <td>${file.name}</td>
+                        <td>${file.description}</td>
+                        <td>${file.type}</td>
+                        <td>${sizeKB} KB</td>
+                        <td>${file.encrypted ? 'Yes' : 'No'}</td>
+                        <td class="actions">
+                            <button class="download-btn" data-id="${file.id}">Download</button>
+                            <button class="preview-btn" data-id="${file.id}">Preview</button>
+                            <button class="delete-btn danger" data-id="${file.id}">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Attach event listeners to new buttons
+                document.querySelectorAll('.download-btn').forEach(btn => {
+                    btn.addEventListener('click', downloadFile);
+                });
+                
+                document.querySelectorAll('.preview-btn').forEach(btn => {
+                    btn.addEventListener('click', previewFile);
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', deleteFile);
+                });
+            };
+
+            request.onerror = function(event) {
+                showStatus('Error loading files: ' + event.target.error, 'error');
+            };
+        }
+
+        // Download file from database
+        async function downloadFile(event) {
+            const id = Number(event.target.dataset.id);
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(id);
+
+            request.onsuccess = async function() {
+                const fileRecord = request.result;
+                let blob;
+
+                try {
+                    if (fileRecord.encrypted) {
+                        const password = prompt('Enter decryption password:');
+                        if (!password) return;
+                        blob = await decryptFile(fileRecord.fileData, password);
+                    } else {
+                        blob = new Blob([fileRecord.fileData.data], { type: fileRecord.type });
+                    }
+
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileRecord.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                } catch (error) {
+                    showStatus('Download failed: ' + error.message, 'error');
+                }
+            };
+        }
+
+        // Preview file in browser
+        async function previewFile(event) {
+            const id = Number(event.target.dataset.id);
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(id);
+
+            request.onsuccess = async function() {
+                const fileRecord = request.result;
+                previewContainer.innerHTML = '';
+                let blob;
+
+                try {
+                    if (fileRecord.encrypted) {
+                        const password = prompt('Enter decryption password:');
+                        if (!password) return;
+                        blob = await decryptFile(fileRecord.fileData, password);
+                    } else {
+                        blob = new Blob([fileRecord.fileData.data], { type: fileRecord.type });
+                    }
+
+                    const url = URL.createObjectURL(blob);
+                    
+                    if (fileRecord.type.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.style.maxWidth = '100%';
+                        previewContainer.appendChild(img);
+                    } else if (fileRecord.type.startsWith('text/') || fileRecord.type.includes('pdf')) {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = url;
+                        iframe.style.width = '100%';
+                        iframe.style.height = '500px';
+                        previewContainer.appendChild(iframe);
+                    } else {
+                        previewContainer.textContent = `Preview not available for ${fileRecord.type} files`;
+                    }
+
+                    previewModal.classList.remove('hidden');
+                } catch (error) {
+                    showStatus('Preview failed: ' + error.message, 'error');
+                }
+            };
+        }
+
+        // Delete file from database
+        function deleteFile(event) {
+            const id = Number(event.target.dataset.id);
+            if (!confirm('Permanently delete this file?')) return;
+
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.delete(id);
+
+            request.onsuccess = function() {
+                showStatus('File deleted', 'success');
+                loadFiles();
+            };
+
+            request.onerror = function(event) {
+                showStatus('Delete failed: ' + event.target.error, 'error');
+            };
+        }
+
+        // Export entire database
+        function exportDB() {
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
+
+            request.onsuccess = function() {
+                const files = request.result;
+		var dataStr = JSON.stringify(files);
+		var dataStrJSON = JSON.parse(dataStr);
+		var fileCounter = 0;
+		files.forEach(file => {
+                        const arrayBuffer = file.fileData.data;
+			var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)));
+			dataStrJSON[fileCounter].fileData.data = base64String;
+			fileCounter++;
+                });
+		dataStr = JSON.stringify(dataStrJSON);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `SecureVault-Backup-${new Date().toISOString().slice(0, 10)}.idb`;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+		//console.log(dataStr);
+            };
+        }
+
+        // Import database from file
+        function importDB(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const files = JSON.parse(e.target.result);
+		    //console.log(files);
+                    if (!Array.isArray(files)) throw new Error('Invalid file format');
+
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    
+                    // Clear existing data
+                    store.clear();
+                    
+                    files.forEach(file => {
+			const base64String = file.fileData.data;
+			const arrayBuffer = Uint8Array.from(atob(base64String), c => c.charCodeAt(0));
+			file.fileData.data = arrayBuffer;
+                        store.add(file);
+                    });
+
+                    transaction.oncomplete = function() {
+                        showStatus('Database imported successfully', 'success');
+                        loadFiles();
+                        importFile.value = ''; // Reset input
+                    };
+
+                    transaction.onerror = function(event) {
+                        showStatus('Import failed: ' + event.target.error, 'error');
+                    };
+                } catch (error) {
+                    showStatus('Import error: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Helper functions
+        function resetForm() {
+            fileInput.value = '';
+            fileName.value = '';
+            fileDescription.value = '';
+            encryptCheckbox.checked = false;
+            encryptPassword.classList.add('hidden');
+            encryptPassword.value = '';
+        }
+
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status ' + type;
+            setTimeout(() => {
+                statusMessage.textContent = '';
+                statusMessage.className = 'status';
+            }, 3000);
+        }
+
+        // Event listeners
+        encryptCheckbox.addEventListener('change', function() {
+            encryptPassword.classList.toggle('hidden', !this.checked);
+        });
+
+        addFileBtn.addEventListener('click', addFile);
+
+        importBtn.addEventListener('click', function() {
+            importFile.click();
+        });
+
+        importFile.addEventListener('change', importDB);
+
+        exportBtn.addEventListener('click', exportDB);
+
+        closePreviewBtn.addEventListener('click', function() {
+            previewModal.classList.add('hidden');
+            previewContainer.innerHTML = '';
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            loadFiles(this.value.toLowerCase());
+        });
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', initDB);
+    </script>
+</body>
+</html>
