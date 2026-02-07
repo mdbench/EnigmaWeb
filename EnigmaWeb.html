@@ -9,9 +9,9 @@
             --primary: #2563eb;
             --danger: #dc2626;
             --success: #16a34a;
-            --bg: #f8fafc;
+            --bg: #000;
             --card: #ffffff;
-            --text: #1e293b;
+            --text: #e8e8e8;
             --border: #e2e8f0;
         }
 
@@ -19,6 +19,11 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        html {
+            width: 100vw;
+            height: 100vh;
         }
 
         body {
@@ -29,34 +34,78 @@
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
+            height: 100vh;
         }
 
         header {
             display: flex;
+            flex-flow: row;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            gap: 10px;
+        }
+
+        header .logo {
+            display: flex;
+            flex-flow: row;
+            gap: 10px;
+        }
+
+        header .logo img {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+        }
+
+        header .database-controls {
+            display: none;
+            margin-left: auto;
+        }
+
+        #tabs {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
             border-bottom: 1px solid var(--border);
         }
 
+        #tabs div .active {
+            background-color: #2563eb;
+            color: #fff;
+        }
+
+        #tabs div button:hover {
+            background-color: #2563eb;
+            color: #fff;
+        }
+
+        #tab1 {
+            display: none;
+        }
+
+        #tab2 {
+            padding-bottom: 20px;
+        }
+
         h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
         }
 
         .controls {
             display: flex;
             gap: 10px;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0;
         }
 
         button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
+            background-color: #fff;
+            color: #000;
+            border: 1px solid #2563eb;
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: 500;
             transition: background-color 0.2s;
@@ -88,6 +137,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             padding: 20px;
             margin-bottom: 20px;
+            color: #000;
         }
 
         .hidden {
@@ -100,29 +150,78 @@
             margin-top: 1rem;
         }
 
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
+        tr {
             border-bottom: 1px solid var(--border);
         }
 
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: none;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100px;
+        }
+
         th {
-            background-color: #f1f5f9;
             font-weight: 600;
+            background-color: #000;
+            color: #fff;
         }
 
         tr:hover {
             background-color: #f8fafc;
         }
 
+        .password-box {
+            background-color: #2563eb;
+            width: fit-content;
+            color: #fff;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .password-box label {
+            cursor: pointer;
+        }
+
+        #encryptCheckbox {
+            display: none;
+        } 
+
         .actions {
             display: flex;
             gap: 8px;
         }
 
+        .file-menu {
+            display: none;
+            position: absolute;
+            background-color: #262626;
+            width: fit-content;
+        }
+
+        .file-menu-button button {
+            border: none;
+        }
+
+        .file-menu button {
+            background-color: #262626;
+            color: #fff;
+            border: none;
+            width: 100%;
+            border-radius: 0;
+            text-align: start;
+        }
+
+        .file-menu button:hover {
+            background-color: #3b3b3b;
+        }
+
         .preview-container {
             max-width: 100%;
-            margin-top: 20px;
             overflow: auto;
         }
 
@@ -132,9 +231,9 @@
         }
 
         .status {
-            padding: 10px;
+            padding: 0;
             border-radius: 6px;
-            margin-bottom: 15px;
+            margin-bottom: 0;
             text-align: center;
         }
 
@@ -148,68 +247,185 @@
             color: #b91c1c;
         }
 
-        .search-container {
-            margin-bottom: 20px;
+        #previewModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            border-radius: 0;
+            padding: 0 !important;
+            background-color: #000;
         }
+
+        .previewToolbar {
+            position: relative;
+            top: 0;
+            right: 0;
+            height: 30px;
+            width: 100%;
+            display: flex;
+            flex-flow: row;
+            gap: 10px;
+            background-color: #000;
+        }
+
+        #closePreviewBtn {
+            margin-left: auto;
+            border-radius: 0;
+        }
+
+        #previewContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        iframe {
+            border: none;
+            outline: none;
+        }
+
+        #passwordModal, #confirmationModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            border-radius: 0;
+            padding: 0 !important;
+            background-color: #0000001f;
+        }
+
+        #passwordModal .password-modal-actual {
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            background-color: #fff;
+            padding: 30px;
+        }
+
+        #confirmationModal .confirmation-modal-actual {
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            background-color: #fff;
+            padding: 30px;
+        }
+
+        #confirmationModal .confirmation-modal-actual .confirmation-modal-actual-confirmations{
+            display: flex;
+            flex-flow: row;
+        }
+
+        @media (max-width: 900px) {
+            table thead tr th:nth-child(2), table tbody tr td:nth-child(2), table thead tr th:nth-child(4), table tbody tr td:nth-child(4), table thead tr th:nth-child(5), table tbody tr td:nth-child(5) {
+                display: none;
+            }
+            tr {
+                border-bottom: 1px solid #000;
+            }
+            th, td {
+                max-width: 50px;
+                font-size: 14px;
+                border-bottom: none;
+            }
+        }
+
     </style>
 </head>
 <body>
     <header>
-        <h1>Secure File Vault</h1>
-        <div>
-            <button id="exportBtn">Export Database</button>
-            <button id="importBtn">Import Database</button>
-            <input type="file" id="importFile" accept=".idb" class="hidden">
+        <div class="logo">
+            <img alt="EnigmaWeb Logo" src="EnigmaWeb.jpg">
+            <h1>EnigmaWeb</h1>
+        </div>
+        <div class="database-controls">
+            <div>
+                <button id="exportBtn">Export Database</button>
+                <button id="importBtn">Import Database</button>
+                <input type="file" id="importFile" accept=".idb" class="hidden">
+            </div>
         </div>
     </header>
-
-    <div class="card">
-        <h2>Add New File</h2>
-        <div class="controls">
-            <input type="file" id="fileInput">
-        </div>
+    <section id="tabs">
         <div>
-            <input type="text" id="fileName" placeholder="Custom file name">
-            <textarea id="fileDescription" placeholder="File description"></textarea>
-            <div>
-                <input type="checkbox" id="encryptCheckbox">
-                <label for="encryptCheckbox">Encrypt with password</label>
-                <input type="password" id="encryptPassword" placeholder="Encryption password" class="hidden">
-            </div>
-            <button id="addFileBtn">Add File</button>
+            <button id="viewerBtn" class="">Add</button>
+            <button id="adderBtn" class="active">Files</button>
         </div>
-    </div>
-
-    <div class="card">
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search by name or description...">
-        </div>
-        <div id="fileTableContainer">
-            <table id="fileTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Type</th>
-                        <th>Size</th>
-                        <th>Encrypted</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="fileTableBody">
-                    <!-- Files will be added here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="previewModal" class="card hidden">
-        <h2>File Preview</h2>
-        <div id="previewContainer" class="preview-container"></div>
-        <button id="closePreviewBtn">Close Preview</button>
-    </div>
-
+    </section>
     <div id="statusMessage" class="status"></div>
+    <section id="tab1">
+        <div class="card">
+            <h2>Add New File</h2>
+            <div class="controls">
+                <input type="file" id="fileInput">
+            </div>
+            <div>
+                <input type="text" id="fileName" placeholder="Custom file name">
+                <textarea id="fileDescription" placeholder="File description"></textarea>
+                <div class="password-box">
+                    <input type="checkbox" id="encryptCheckbox">
+                    <label for="encryptCheckbox">Encrypt with password?</label>
+                    <input type="password" id="encryptPassword" placeholder="Encryption password" class="hidden">
+                </div>
+                <button id="addFileBtn">Add File</button>
+            </div>
+        </div>
+    </section>
+    <section id="tab2">
+        <div class="card">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search by name or description...">
+            </div>
+            <div id="fileTableContainer">
+                <table id="fileTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Encrypted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileTableBody">
+                        <!-- Files will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    <div id="previewModal" class="card hidden">
+        <div class="previewToolbar">
+            <button id="closePreviewBtn">Close Preview</button>
+        </div>
+        <div id="previewContainer" class="preview-container"></div>
+    </div>
+    <div id="passwordModal" class="card hidden">
+        <div class="password-modal-actual">
+            <label for="password">Enter decryption password:</label><br>
+            <input type="password" id="password" name="password">
+            <input type="submit" id="submit-password" value="Submit">
+        </div>
+    </div>
+    <div id="confirmationModal" class="card hidden">
+        <div class="confirmation-modal-actual">
+            <p>Are you sure you want to delete this file?</p>
+            <div class="confirmation-modal-actual-confirmations">
+                <button id="confirmationModalAccept">Yes</button>
+                <button id="confirmationModalDeny">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Database setup
@@ -234,6 +450,17 @@
         const previewModal = document.getElementById('previewContainer').parentElement;
         const closePreviewBtn = document.getElementById('closePreviewBtn');
         const statusMessage = document.getElementById('statusMessage');
+        const tabs = document.getElementById('tabs');
+        const tab1 = document.getElementById('tab1');
+        const tab1Btn = document.getElementById('viewerBtn');
+        const tab2 = document.getElementById('tab2');
+        const tab2Btn = document.getElementById('adderBtn');
+        const passwordModal = document.getElementById('passwordModal');
+        const password = document.getElementById('password');
+        const submitPassword = document.getElementById('submit-password');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmationModalAccept = document.getElementById('confirmationModalAccept');
+        const confirmationModalDeny = document.getElementById('confirmationModalDeny');
 
         // Initialize database
         function initDB() {
@@ -439,15 +666,37 @@
                         <td>${sizeKB} KB</td>
                         <td>${file.encrypted ? 'Yes' : 'No'}</td>
                         <td class="actions">
-                            <button class="download-btn" data-id="${file.id}">Download</button>
-                            <button class="preview-btn" data-id="${file.id}">Preview</button>
-                            <button class="delete-btn danger" data-id="${file.id}">Delete</button>
+                            <div class="file-menu-button">
+                                <button class="file-menu-actual">☰</button>
+                                <div class="file-menu">
+                                    <button class="download-btn" data-id="${file.id}">Download</button>
+                                    <button class="preview-btn" data-id="${file.id}">Preview</button>
+                                    <button class="delete-btn danger" data-id="${file.id}">Delete</button>
+                                </div>
+                            </div>
                         </td>
                     `;
                     tableBody.appendChild(row);
                 });
 
                 // Attach event listeners to new buttons
+                document.querySelectorAll('.file-menu-button').forEach(btn => {
+                    var isOpened = false;
+                    btn.addEventListener('click', function(){
+                        document.querySelectorAll('.file-menu').forEach(otherMenuButtons => {
+                            otherMenuButtons.style.display = 'none';
+                        });
+                        const fileMenu = btn.querySelector('.file-menu');
+                        if(isOpened){
+                            fileMenu.style.display = 'none';
+                            isOpened = false;
+                        } else {
+                            fileMenu.style.display = 'block';
+                            isOpened = true;
+                        }
+                    });
+                });
+
                 document.querySelectorAll('.download-btn').forEach(btn => {
                     btn.addEventListener('click', downloadFile);
                 });
@@ -459,6 +708,7 @@
                 document.querySelectorAll('.delete-btn').forEach(btn => {
                     btn.addEventListener('click', deleteFile);
                 });
+
             };
 
             request.onerror = function(event) {
@@ -479,27 +729,38 @@
 
                 try {
                     if (fileRecord.encrypted) {
-                        const password = prompt('Enter decryption password:');
-                        if (!password) return;
-                        blob = await decryptFile(fileRecord.fileData, password);
+                        passwordModal.style.display = 'block';
+                        submitPassword.onclick = async function() {
+                            const pw = password.value;
+                            if(pw == ""){
+                                return;
+                            }
+                            blob = await decryptFile(fileRecord.fileData, pw);
+                            passwordModal.style.display = 'none';
+                            passBlob(fileRecord, blob);
+                        }
                     } else {
                         blob = new Blob([fileRecord.fileData.data], { type: fileRecord.type });
-                    }
-
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileRecord.name;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(() => {
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                    }, 100);
+                        passBlob(fileRecord, blob);
+                    }                    
                 } catch (error) {
                     showStatus('Download failed: ' + error.message, 'error');
                 }
             };
+        }
+
+        //Create blob to auto download file
+        function passBlob(fileRecord, blob){
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileRecord.name;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
         }
 
         // Preview file in browser
@@ -516,54 +777,71 @@
 
                 try {
                     if (fileRecord.encrypted) {
-                        const password = prompt('Enter decryption password:');
-                        if (!password) return;
+                        passwordModal.style.display = 'block';
+                        submitPassword.onclick = async function() {
+                            const pw = password.value;
+                            if(pw == ""){
+                                return;
+                            }
+                            blob = await decryptFile(fileRecord.fileData, pw);
+                            passwordModal.style.display = 'none';
+                            prepForPreview(fileRecord, blob);
+                        }
                         blob = await decryptFile(fileRecord.fileData, password);
                     } else {
                         blob = new Blob([fileRecord.fileData.data], { type: fileRecord.type });
+                        prepForPreview(fileRecord, blob);
                     }
-
-                    const url = URL.createObjectURL(blob);
-                    
-                    if (fileRecord.type.startsWith('image/')) {
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.style.maxWidth = '100%';
-                        previewContainer.appendChild(img);
-                    } else if (fileRecord.type.startsWith('text/') || fileRecord.type.includes('pdf')) {
-                        const iframe = document.createElement('iframe');
-                        iframe.src = url;
-                        iframe.style.width = '100%';
-                        iframe.style.height = '500px';
-                        previewContainer.appendChild(iframe);
-                    } else {
-                        previewContainer.textContent = `Preview not available for ${fileRecord.type} files`;
-                    }
-
-                    previewModal.classList.remove('hidden');
                 } catch (error) {
                     showStatus('Preview failed: ' + error.message, 'error');
                 }
             };
         }
 
+        // Create blob to preview file
+        function prepForPreview(fileRecord, blob){
+            const url = URL.createObjectURL(blob);
+            if (fileRecord.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.maxWidth = '100%';
+                previewContainer.appendChild(img);
+            } else if (fileRecord.type.startsWith('text/') || fileRecord.type.includes('pdf')) {
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.style.width = '100%';
+                iframe.style.height = 'calc(100vh - 30px)';
+                previewContainer.appendChild(iframe);
+            } else {
+                previewContainer.textContent = `Preview not available for ${fileRecord.type} files. Opened in new tab.`;
+                window.open(url, '_blank');
+            }
+            previewModal.classList.remove('hidden');
+        }
+
         // Delete file from database
         function deleteFile(event) {
             const id = Number(event.target.dataset.id);
-            if (!confirm('Permanently delete this file?')) return;
+            confirmationModal.style.display = 'flex';
+            confirmationModalAccept.onclick = function() {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(id);
 
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.delete(id);
+                request.onsuccess = function() {
+                    confirmationModal.style.display = 'none';
+                    showStatus('File deleted', 'success');
+                    loadFiles();
+                };
 
-            request.onsuccess = function() {
-                showStatus('File deleted', 'success');
-                loadFiles();
-            };
-
-            request.onerror = function(event) {
-                showStatus('Delete failed: ' + event.target.error, 'error');
-            };
+                request.onerror = function(event) {
+                    confirmationModal.style.display = 'none';
+                    showStatus('Delete failed: ' + event.target.error, 'error');
+                };
+            }
+            confirmationModalDeny.onclick = function() {
+                confirmationModal.style.display = 'none';
+            }
         }
 
         // Export entire database
@@ -653,9 +931,13 @@
         function showStatus(message, type = 'info') {
             statusMessage.textContent = message;
             statusMessage.className = 'status ' + type;
+            statusMessage.style.padding = '10px';
+            statusMessage.style.marginBottom = '10px';
             setTimeout(() => {
                 statusMessage.textContent = '';
                 statusMessage.className = 'status';
+                statusMessage.style.padding = '';
+                statusMessage.style.marginBottom = '';
             }, 3000);
         }
 
@@ -681,6 +963,20 @@
 
         document.getElementById('searchInput').addEventListener('input', function() {
             loadFiles(this.value.toLowerCase());
+        });
+
+        tab1Btn.addEventListener('click', function() {
+            tab1.style.display = 'block';
+            tab2.style.display = 'none';
+            tab1Btn.classList.add('active');
+            tab2Btn.classList.remove('active');
+        });
+
+        tab2Btn.addEventListener('click', function() {
+            tab1.style.display = 'none';
+            tab2.style.display = 'block';
+            tab1Btn.classList.remove('active');
+            tab2Btn.classList.add('active');
         });
 
         // Initialize on load
